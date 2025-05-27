@@ -1,0 +1,25 @@
+{
+  "network": "sepolia",
+  "chainId": "11155111",
+  "blockNumber": 8418272,
+  "bytecodeLength": 11568,
+  "bytecodeHash": "0xce3484c25060b0c170063ecae79a4fcfee1bb07f9664270665cde85711d118ad",
+  "deployment": {
+    "estimatedGas": "2393631",
+    "actualGas": "2373625",
+    "gasPrice": "47504766581",
+    "totalCost": "0.112758501575826125",
+    "time": 12938
+  },
+  "operations": {
+    "mint": {
+      "estimated": "81052",
+      "actual": "80151"
+    },
+    "batchMint3": {
+      "estimated": "114882",
+      "actual": "113847",
+      "perNFT": "37949"
+    }
+  }
+}

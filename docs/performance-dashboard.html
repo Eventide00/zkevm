@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zkEVM Performance Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin: 10px 0;
+        }
+        .metric-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .chart-title {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .comparison-table {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .comparison-table th {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        .improvement {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>zkEVM Performance Dashboard</h1>
+        <p>Comparing Polygon zkEVM with Ethereum Mainnet</p>
+    </div>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-label">Average Transaction Speed</div>
+            <div class="metric-value" id="txSpeed">85%</div>
+            <div class="metric-label">Faster than Ethereum</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Gas Cost Reduction</div>
+            <div class="metric-value" id="gasCost">70%</div>
+            <div class="metric-label">Lower than Ethereum</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Throughput</div>
+            <div class="metric-value" id="throughput">2000</div>
+            <div class="metric-label">Transactions per second</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Block Time</div>
+            <div class="metric-value" id="blockTime">2s</div>
+            <div class="metric-label">Average block time</div>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <div class="chart-title">Transaction Time Comparison (ms)</div>
+        <canvas id="timeChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <div class="chart-title">Gas Usage Comparison</div>
+        <canvas id="gasChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <div class="chart-title">Throughput Over Time</div>
+        <canvas id="throughputChart"></canvas>
+    </div>
+
+    <table class="comparison-table">
+        <thead>
+            <tr>
+                <th>Metric</th>
+                <th>Polygon zkEVM</th>
+                <th>Ethereum</th>
+                <th>Improvement</th>
+            </tr>
+        </thead>
+        <tbody id="comparisonTable">
+            <!-- Data will be populated here -->
+        </tbody>
+    </table>
+
+    <script>
+        // 模拟数据 - 实际使用时从你的测试结果中获取
+        const performanceData = {
+            zkEVM: {
+                deployTime: 1200,
+                deployGas: 1500000,
+                mintTime: 300,
+                mintGas: 80000,
+                batchMintTime: 2000,
+                blockTime: 2
+            },
+            ethereum: {
+                deployTime: 8000,
+                deployGas: 3000000,
+                mintTime: 2000,
+                mintGas: 150000,
+                batchMintTime: 15000,
+                blockTime: 12
+            }
+        };
+
+        // 创建时间比较图表
+        const timeCtx = document.getElementById('timeChart').getContext('2d');
+        new Chart(timeCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Deploy', 'Single Mint', 'Batch Mint (10)'],
+                datasets: [{
+                    label: 'Polygon zkEVM',
+                    data: [
+                        performanceData.zkEVM.deployTime,
+                        performanceData.zkEVM.mintTime,
+                        performanceData.zkEVM.batchMintTime
+                    ],
+                    backgroundColor: 'rgba(76, 175, 80, 0.6)'
+                }, {
+                    label: 'Ethereum',
+                    data: [
+                        performanceData.ethereum.deployTime,
+                        performanceData.ethereum.mintTime,
+                        performanceData.ethereum.batchMintTime
+                    ],
+                    backgroundColor: 'rgba(255, 152, 0, 0.6)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Time (ms)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 创建Gas比较图表
+        const gasCtx = document.getElementById('gasChart').getContext('2d');
+        new Chart(gasCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['zkEVM Deploy', 'zkEVM Mint', 'Ethereum Deploy', 'Ethereum Mint'],
+                datasets: [{
+                    data: [
+                        performanceData.zkEVM.deployGas,
+                        performanceData.zkEVM.mintGas,
+                        performanceData.ethereum.deployGas,
+                        performanceData.ethereum.mintGas
+                    ],
+                    backgroundColor: [
+                        'rgba(76, 175, 80, 0.8)',
+                        'rgba(76, 175, 80, 0.5)',
+                        'rgba(255, 152, 0, 0.8)',
+                        'rgba(255, 152, 0, 0.5)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // 创建吞吐量图表
+        const throughputCtx = document.getElementById('throughputChart').getContext('2d');
+        new Chart(throughputCtx, {
+            type: 'line',
+            data: {
+                labels: ['0s', '10s', '20s', '30s', '40s', '50s', '60s'],
+                datasets: [{
+                    label: 'Polygon zkEVM TPS',
+                    data: [1800, 2000, 2100, 1950, 2050, 2000, 2000],
+                    borderColor: 'rgba(76, 175, 80, 1)',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    tension: 0.4
+                }, {
+                    label: 'Ethereum TPS',
+                    data: [15, 14, 15, 16, 15, 14, 15],
+                    borderColor: 'rgba(255, 152, 0, 1)',
+                    backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Transactions per Second'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 填充比较表格
+        const tableBody = document.getElementById('comparisonTable');
+        const metrics = [
+            {
+                name: 'Deployment Time',
+                zkEVM: `${performanceData.zkEVM.deployTime}ms`,
+                ethereum: `${performanceData.ethereum.deployTime}ms`,
+                improvement: '85%'
+            },
+            {
+                name: 'Deployment Gas',
+                zkEVM: performanceData.zkEVM.deployGas.toLocaleString(),
+                ethereum: performanceData.ethereum.deployGas.toLocaleString(),
+                improvement: '50%'
+            },
+            {
+                name: 'Mint Time',
+                zkEVM: `${performanceData.zkEVM.mintTime}ms`,
+                ethereum: `${performanceData.ethereum.mintTime}ms`,
+                improvement: '85%'
+            },
+            {
+                name: 'Mint Gas',
+                zkEVM: performanceData.zkEVM.mintGas.toLocaleString(),
+                ethereum: performanceData.ethereum.mintGas.toLocaleString(),
+                improvement: '47%'
+            },
+            {
+                name: 'Block Time',
+                zkEVM: `${performanceData.zkEVM.blockTime}s`,
+                ethereum: `${performanceData.ethereum.blockTime}s`,
+                improvement: '83%'
+            }
+        ];
+
+        metrics.forEach(metric => {
+            const row = tableBody.insertRow();
+            row.innerHTML = `
+                <td>${metric.name}</td>
+                <td>${metric.zkEVM}</td>
+                <td>${metric.ethereum}</td>
+                <td class="improvement">↑ ${metric.improvement}</td>
+            `;
+        });
+    </script>
+</body>
+</html>

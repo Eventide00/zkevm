@@ -1,0 +1,41 @@
+{
+  "name": "zkevm-modular-project",
+  "version": "1.0.0",
+  "description": "A modular blockchain project using zkEVM as execution layer",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "deploy": "node scripts/runAllTests.js",
+    "deploy:amoy": "npx hardhat run scripts/deployAndTest.js --network polygonZkEVMAmoy",
+    "deploy:sepolia": "npx hardhat run scripts/deployAndTest.js --network sepolia",
+    "deploy:optimized": "npx hardhat run scripts/deployAndTestOptimized.js",
+    "deploy:amoy-opt": "npx hardhat run scripts/deployAndTestOptimized.js --network polygonZkEVMAmoy",
+    "deploy:sepolia-opt": "npx hardhat run scripts/deployAndTestOptimized.js --network sepolia",
+    "balance": "npx hardhat run scripts/checkBalance.js",
+    "balance:amoy": "npx hardhat run scripts/checkBalance.js --network polygonZkEVMAmoy",
+    "balance:sepolia": "npx hardhat run scripts/checkBalance.js --network sepolia",
+    "gas:amoy": "npx hardhat run scripts/gasAnalysis.js --network polygonZkEVMAmoy",
+    "gas:sepolia": "npx hardhat run scripts/gasAnalysis.js --network sepolia",
+    "clean": "npx hardhat clean",
+    "node": "npx hardhat node"
+  },
+  "keywords": [
+    "blockchain",
+    "zkevm",
+    "ethereum",
+    "polygon",
+    "modular",
+    "layer2"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "hardhat": "^2.19.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0",
+    "dotenv": "^16.3.1"
+  }
+}

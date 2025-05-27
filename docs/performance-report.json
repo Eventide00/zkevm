@@ -1,0 +1,31 @@
+{
+  "Deployment Time (ms)": {
+    "Polygon zkEVM Amoy": 10819,
+    "Ethereum Sepolia": 8563,
+    "Improvement": "-26.35%"
+  },
+  "Deployment Gas": {
+    "Polygon zkEVM Amoy": "2373625",
+    "Ethereum Sepolia": "2373625",
+    "Savings": "0.00%"
+  },
+  "Single Mint Time (ms)": {
+    "Polygon zkEVM Amoy": 5372,
+    "Ethereum Sepolia": 11144,
+    "Improvement": "51.79%"
+  },
+  "Single Mint Gas": {
+    "Polygon zkEVM Amoy": "80151",
+    "Ethereum Sepolia": "80151",
+    "Savings": "0.00%"
+  },
+  "Batch Mint Time (3 NFTs) (ms)": {
+    "Polygon zkEVM Amoy": 4487,
+    "Ethereum Sepolia": 11311,
+    "Improvement": "60.33%"
+  },
+  "Average Block Time (s)": {
+    "Polygon zkEVM Amoy": 2,
+    "Ethereum Sepolia": 13.2
+  }
+}
