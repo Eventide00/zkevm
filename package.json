@@ -17,6 +17,9 @@
     "balance:sepolia": "npx hardhat run scripts/checkBalance.js --network sepolia",
     "gas:amoy": "npx hardhat run scripts/gasAnalysis.js --network polygonZkEVMAmoy",
     "gas:sepolia": "npx hardhat run scripts/gasAnalysis.js --network sepolia",
+    "mint:file": "npx hardhat run scripts/fileNFTMinter.js",
+    "mint:file:amoy": "npx hardhat run scripts/fileNFTMinter.js --network polygonZkEVMAmoy",
+    "mint:file:sepolia": "npx hardhat run scripts/fileNFTMinter.js --network sepolia",
     "clean": "npx hardhat clean",
     "node": "npx hardhat node"
   },
@@ -26,7 +29,9 @@
     "ethereum",
     "polygon",
     "modular",
-    "layer2"
+    "layer2",
+    "nft",
+    "ipfs"
   ],
   "author": "Your Name",
   "license": "MIT",
@@ -36,6 +41,8 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.0",
-    "dotenv": "^16.3.1"
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "form-data": "^4.0.0"
   }
 }

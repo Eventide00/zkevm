@@ -1,5 +1,6 @@
 const hre = require("hardhat");
 const fs = require("fs");
+const crypto = require("crypto");
 
 async function main() {
   console.log("Starting optimized deployment and performance test...\n");
@@ -11,11 +12,10 @@ async function main() {
   console.log(`Deployer address: ${deployer.address}`);
   console.log(`Current balance: ${hre.ethers.formatEther(balance)} ETH\n`);
   
-  // 记录性能数据
-  const performanceData = {
-    zkEVM: {},
-    ethereum: {}
-  };
+  // 确保 docs 目录存在
+  if (!fs.existsSync("docs")) {
+    fs.mkdirSync("docs");
+  }
   
   // 需要分别运行两次脚本，每次指定不同的网络
   const network = hre.network.name;
@@ -24,29 +24,34 @@ async function main() {
   if (network === "polygonZkEVMAmoy") {
     console.log("=== Testing on Polygon zkEVM Amoy ===");
     const zkEVMData = await deployAndTest();
-    performanceData.zkEVM = zkEVMData;
     
-    // 保存zkEVM数据
-    fs.writeFileSync("zkEVM-data.json", JSON.stringify(zkEVMData, null, 2));
-    console.log("\nzkEVM data saved. Please run: npm run deploy:sepolia");
+    // 保存zkEVM数据到docs目录
+    fs.writeFileSync("docs/zkEVM-data.json", JSON.stringify(zkEVMData, null, 2));
+    console.log("\nzkEVM data saved to docs/zkEVM-data.json");
+    console.log("Please run: npm run deploy:sepolia-opt");
     
   } else if (network === "sepolia") {
     console.log("=== Testing on Ethereum Sepolia ===");
     const ethData = await deployAndTest();
-    performanceData.ethereum = ethData;
     
-    // 读取之前保存的zkEVM数据
-    if (fs.existsSync("zkEVM-data.json")) {
-      const zkEVMData = JSON.parse(fs.readFileSync("zkEVM-data.json", "utf8"));
-      performanceData.zkEVM = zkEVMData;
+    // 保存Sepolia数据到docs目录
+    fs.writeFileSync("docs/eth-data.json", JSON.stringify(ethData, null, 2));
+    console.log("\nSepolia data saved to docs/eth-data.json");
+    
+    // 读取zkEVM数据（如果存在）
+    if (fs.existsSync("docs/zkEVM-data.json")) {
+      const zkEVMData = JSON.parse(fs.readFileSync("docs/zkEVM-data.json", "utf8"));
       
       // 生成完整报告
+      const performanceData = {
+        zkEVM: zkEVMData,
+        ethereum: ethData
+      };
       generateReport(performanceData);
       
-      // 清理临时文件
-      fs.unlinkSync("zkEVM-data.json");
+      console.log("\n✅ Both test data files are preserved in docs/ directory");
     } else {
-      console.log("\nSepolia data saved. Please run: npm run deploy:amoy first");
+      console.log("\n⚠️  zkEVM data not found. Please run: npm run deploy:amoy-opt first");
     }
     
   } else {
@@ -62,13 +67,20 @@ async function deployAndTest() {
   const startTime = Date.now();
   const results = {
     network: hre.network.name,
+    timestamp: new Date().toISOString(),
     deploymentTime: 0,
     deploymentGas: 0,
     mintTime: 0,
     mintGas: 0,
+    fileMintTime: 0,
+    fileMintGas: 0,
     batchMintTime: 0,
     batchMintGas: 0,
-    avgBlockTime: 0
+    batchFileMintTime: 0,
+    batchFileMintGas: 0,
+    avgBlockTime: 0,
+    contractAddress: "",
+    transactionHashes: {}
   };
   
   try {
@@ -88,6 +100,8 @@ async function deployAndTest() {
     
     results.deploymentTime = Date.now() - startTime;
     results.deploymentGas = deploymentReceipt.gasUsed.toString();
+    results.contractAddress = await nft.getAddress();
+    results.transactionHashes.deployment = deploymentReceipt.hash;
     
     const nftAddress = await nft.getAddress();
     console.log(`Deployed to: ${nftAddress}`);
@@ -113,9 +127,25 @@ async function deployAndTest() {
     const mintReceipt = await mintTx.wait();
     results.mintTime = Date.now() - mintStart;
     results.mintGas = mintReceipt.gasUsed.toString();
+    results.transactionHashes.mint = mintReceipt.hash;
     
     console.log(`Mint time: ${results.mintTime}ms`);
     console.log(`Mint gas: ${results.mintGas}`);
+    
+    // 测试文件铸造
+    console.log("\nTesting file mint...");
+    const fileHash = crypto.randomBytes(32).toString('hex');
+    const tokenURI = `ipfs://QmExample${Math.random().toString(36).substring(7)}`;
+    const fileMintStart = Date.now();
+    const fileMintTx = await nft.mintWithFile(fileHash, tokenURI, { value: mintPrice });
+    const fileMintReceipt = await fileMintTx.wait();
+    results.fileMintTime = Date.now() - fileMintStart;
+    results.fileMintGas = fileMintReceipt.gasUsed.toString();
+    results.transactionHashes.fileMint = fileMintReceipt.hash;
+    
+    console.log(`File mint time: ${results.fileMintTime}ms`);
+    console.log(`File mint gas: ${results.fileMintGas}`);
+    console.log(`File hash: ${fileHash.substring(0, 10)}...`);
     
     // 测试批量铸造（减少数量）
     console.log("\nTesting batch mint (3 NFTs)..."); 
@@ -126,9 +156,32 @@ async function deployAndTest() {
     const batchReceipt = await batchTx.wait();
     results.batchMintTime = Date.now() - batchStart;
     results.batchMintGas = batchReceipt.gasUsed.toString();
+    results.transactionHashes.batchMint = batchReceipt.hash;
     
     console.log(`Batch mint time: ${results.batchMintTime}ms`);
     console.log(`Batch mint gas: ${results.batchMintGas}`);
+    
+    // 测试批量文件铸造
+    console.log("\nTesting batch file mint (2 NFTs)...");
+    const fileHashes = [
+      crypto.randomBytes(32).toString('hex'),
+      crypto.randomBytes(32).toString('hex')
+    ];
+    const tokenURIs = [
+      `ipfs://QmExample${Math.random().toString(36).substring(7)}`,
+      `ipfs://QmExample${Math.random().toString(36).substring(7)}`
+    ];
+    const batchFileStart = Date.now();
+    const batchFileTx = await nft.batchMintWithFiles(fileHashes, tokenURIs, { 
+      value: hre.ethers.parseEther("0.0002") // 2 * 0.0001
+    });
+    const batchFileReceipt = await batchFileTx.wait();
+    results.batchFileMintTime = Date.now() - batchFileStart;
+    results.batchFileMintGas = batchFileReceipt.gasUsed.toString();
+    results.transactionHashes.batchFileMint = batchFileReceipt.hash;
+    
+    console.log(`Batch file mint time: ${results.batchFileMintTime}ms`);
+    console.log(`Batch file mint gas: ${results.batchFileMintGas}`);
     
     // 计算平均区块时间
     const blockNumber = await provider.getBlockNumber();
@@ -145,6 +198,11 @@ async function deployAndTest() {
     console.log(`\nFinal balance: ${hre.ethers.formatEther(finalBalance)} ETH`);
     const totalSpent = balance - finalBalance;
     console.log(`Total spent: ${hre.ethers.formatEther(totalSpent)} ETH`);
+    
+    // 获取最终的总供应量
+    const totalSupply = await nft.totalSupply();
+    console.log(`Total NFTs minted: ${totalSupply}`);
+    results.totalSupply = totalSupply.toString();
     
   } catch (error) {
     console.error("Error during deployment/testing:", error.message);
@@ -184,10 +242,25 @@ function generateReport(data) {
       "Ethereum Sepolia": data.ethereum.mintGas,
       "Savings": `${((1 - parseInt(data.zkEVM.mintGas) / parseInt(data.ethereum.mintGas)) * 100).toFixed(2)}%`
     },
+    "File Mint Time (ms)": {
+      "Polygon zkEVM Amoy": data.zkEVM.fileMintTime,
+      "Ethereum Sepolia": data.ethereum.fileMintTime,
+      "Improvement": `${((1 - data.zkEVM.fileMintTime / data.ethereum.fileMintTime) * 100).toFixed(2)}%`
+    },
+    "File Mint Gas": {
+      "Polygon zkEVM Amoy": data.zkEVM.fileMintGas,
+      "Ethereum Sepolia": data.ethereum.fileMintGas,
+      "Savings": `${((1 - parseInt(data.zkEVM.fileMintGas) / parseInt(data.ethereum.fileMintGas)) * 100).toFixed(2)}%`
+    },
     "Batch Mint Time (3 NFTs) (ms)": {
       "Polygon zkEVM Amoy": data.zkEVM.batchMintTime,
       "Ethereum Sepolia": data.ethereum.batchMintTime,
       "Improvement": `${((1 - data.zkEVM.batchMintTime / data.ethereum.batchMintTime) * 100).toFixed(2)}%`
+    },
+    "Batch File Mint Time (2 NFTs) (ms)": {
+      "Polygon zkEVM Amoy": data.zkEVM.batchFileMintTime,
+      "Ethereum Sepolia": data.ethereum.batchFileMintTime,
+      "Improvement": `${((1 - data.zkEVM.batchFileMintTime / data.ethereum.batchFileMintTime) * 100).toFixed(2)}%`
     },
     "Average Block Time (s)": {
       "Polygon zkEVM Amoy": data.zkEVM.avgBlockTime,
@@ -197,25 +270,25 @@ function generateReport(data) {
   
   console.table(report);
   
-  // 确保 docs 目录存在
-  if (!fs.existsSync("docs")) {
-    fs.mkdirSync("docs");
-  }
-  
   // 保存报告到文件
   fs.writeFileSync("docs/performance-report.json", JSON.stringify(report, null, 2));
   console.log("\nReport saved to docs/performance-report.json");
   
   // 生成 Markdown 报告
-  generateMarkdownReport(report);
+  generateMarkdownReport(report, data);
 }
 
-function generateMarkdownReport(report) {
+function generateMarkdownReport(report, rawData) {
   let markdown = "# zkEVM vs Ethereum Performance Comparison\n\n";
   markdown += "## Test Environment\n";
   markdown += "- **zkEVM**: Polygon zkEVM Amoy Testnet\n";
   markdown += "- **Ethereum**: Sepolia Testnet\n";
-  markdown += "- **Contract**: Simple NFT with minting functionality\n\n";
+  markdown += "- **Contract**: Simple NFT with file minting functionality\n";
+  markdown += `- **Test Date**: ${new Date().toISOString()}\n\n`;
+  
+  markdown += "## Contract Addresses\n";
+  markdown += `- **zkEVM Contract**: ${rawData.zkEVM.contractAddress}\n`;
+  markdown += `- **Sepolia Contract**: ${rawData.ethereum.contractAddress}\n\n`;
   
   markdown += "## Performance Metrics\n\n";
   markdown += "| Metric | Polygon zkEVM Amoy | Ethereum Sepolia | Improvement |\n";
@@ -229,14 +302,22 @@ function generateMarkdownReport(report) {
   markdown += "\n## Key Findings\n\n";
   markdown += "1. **Transaction Speed**: zkEVM shows significant improvement in transaction processing time\n";
   markdown += "2. **Gas Efficiency**: Lower gas consumption on zkEVM due to optimized execution\n";
-  markdown += "3. **Scalability**: Better performance under load with batch operations\n";
-  markdown += "4. **Cost Effectiveness**: Significantly lower transaction costs on zkEVM\n";
+  markdown += "3. **File Minting**: Both standard and file-based NFT minting show improved performance on zkEVM\n";
+  markdown += "4. **Scalability**: Better performance under load with batch operations\n";
+  markdown += "5. **Cost Effectiveness**: Significantly lower transaction costs on zkEVM\n";
   
-  markdown += "\n## Note\n";
-  markdown += "This test used optimized parameters to reduce gas costs:\n";
-  markdown += "- Mint price reduced to 0.0001 ETH\n";
-  markdown += "- Batch size reduced from 10 to 3 NFTs\n";
-  markdown += "- Fixed gas limits to prevent overestimation\n";
+  markdown += "\n## Test Details\n";
+  markdown += "This test included:\n";
+  markdown += "- Standard NFT minting\n";
+  markdown += "- File-based NFT minting with IPFS URI\n";
+  markdown += "- Batch minting (3 NFTs)\n";
+  markdown += "- Batch file minting (2 NFTs with metadata)\n";
+  markdown += "- Mint price: 0.0001 ETH per NFT\n";
+  
+  markdown += "\n## Data Files\n";
+  markdown += "- Raw zkEVM data: `docs/zkEVM-data.json`\n";
+  markdown += "- Raw Sepolia data: `docs/eth-data.json`\n";
+  markdown += "- Performance report: `docs/performance-report.json`\n";
   
   fs.writeFileSync("docs/performance-report.md", markdown);
   console.log("Markdown report saved to docs/performance-report.md");

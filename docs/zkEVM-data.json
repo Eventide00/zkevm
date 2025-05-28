@@ -1,0 +1,24 @@
+{
+  "network": "polygonZkEVMAmoy",
+  "timestamp": "2025-05-28T06:58:00.988Z",
+  "deploymentTime": 10416,
+  "deploymentGas": "3029960",
+  "mintTime": 5346,
+  "mintGas": "80151",
+  "fileMintTime": 6159,
+  "fileMintGas": "92444",
+  "batchMintTime": 7859,
+  "batchMintGas": "113825",
+  "batchFileMintTime": 6273,
+  "batchFileMintGas": "148691",
+  "avgBlockTime": 2.2,
+  "contractAddress": "0xb2679147f6F5809Fa581E7F9023B8CD7baBB0E0C",
+  "transactionHashes": {
+    "deployment": "0x262eae2a0c6b4b03eb9e4a1df894cad0c683b48ba2da0a3661d488410b5d1738",
+    "mint": "0xd8f729d065fd9974098648c93ea056ab4ab6a0a29eb2e1de448133253cedf12e",
+    "fileMint": "0x6040a6d56085ed30621d9941cd0ef7c2500b87ce46fd2155daa7a0105a0fd437",
+    "batchMint": "0x9ba61f9606dcb50b83810d2972cc96fa019cdd8718dd1b71eab74e75878758d4",
+    "batchFileMint": "0xd9df4f0aa3c80138312540c6a062183c78f4ea2a391bd0809e4fe7bca49959c9"
+  },
+  "totalSupply": "7"
+}
