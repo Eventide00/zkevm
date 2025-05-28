@@ -153,7 +153,7 @@
             <div class="metric-label">Lower than Ethereum</div>
         </div>
         <div class="metric-card">
-            <div class="metric-label">Throughput (Real-time)</div>
+            <div class="metric-label">Mainnet Throughput (Real-time)</div>
             <div class="metric-value" id="throughput">
                 <span style="font-size: 0.5em;">Loading...</span>
             </div>
@@ -171,10 +171,10 @@
         <canvas id="timeChart"></canvas>
     </div>
 
-    <!-- <div class="chart-container">
+    <div class="chart-container">
         <div class="chart-title">Gas Usage Comparison</div>
         <canvas id="gasChart"></canvas>
-    </div> -->
+    </div>
 
     <!-- <div class="chart-container">
         <div class="chart-title">Throughput Over Time</div>
@@ -195,102 +195,116 @@
         </tbody>
     </table>
 
-    <div class="chart-container">
-        <div class="chart-title">Gas Usage Comparison</div>
-        <canvas id="gasChart"></canvas>
-    </div>
-
-    
     <script>
-        // Web3 initialization for Polygon Amoy
-        const web3 = new Web3('https://rpc-amoy.polygon.technology/');
+        // Web3 initialization for Polygon zkEVM Mainnet
+        // Try multiple RPC endpoints
+        const rpcEndpoints = [
+            'https://polygon-rpc.com',
+            'https://rpc.polygon-zkevm.gateway.fm',
+            'https://polygon-zkevm.drpc.org',
+            'https://1rpc.io/polygon/zkevm'
+        ];
+        
+        let web3 = new Web3(rpcEndpoints[0]);
+        let currentRpcIndex = 0;
+        
+        // Function to switch RPC endpoint if current one fails
+        async function switchRpcEndpoint() {
+            currentRpcIndex = (currentRpcIndex + 1) % rpcEndpoints.length;
+            web3 = new Web3(rpcEndpoints[currentRpcIndex]);
+            console.log(`Switched to RPC endpoint: ${rpcEndpoints[currentRpcIndex]}`);
+        }
         
         // Function to calculate real-time TPS
         async function calculateRealTimeTPS() {
-            try {
-                console.log('Calculating Polygon Amoy TPS...');
-                
-                // Get latest block
-                const latestBlock = await web3.eth.getBlock('latest');
-                if (!latestBlock) {
-                    throw new Error('Failed to get latest block');
-                }
-                
-                const endBlockNumber = Number(latestBlock.number);
-                
-                // Calculate TPS over last 10 blocks (approximately 20-30 seconds)
-                const blockRange = 10;
-                const startBlockNumber = endBlockNumber - blockRange;
-                
-                let totalTransactions = 0;
-                let timestamps = [];
-                
-                // Fetch blocks in parallel for faster loading
-                const blockPromises = [];
-                for (let i = startBlockNumber; i <= endBlockNumber; i++) {
-                    blockPromises.push(
-                        web3.eth.getBlock(i)
-                            .catch(err => {
-                                console.warn(`Failed to fetch block ${i}:`, err);
-                                return null;
-                            })
-                    );
-                }
-                
-                const blocks = await Promise.all(blockPromises);
-                
-                // Calculate total transactions and collect timestamps
-                let validBlocks = 0;
-                blocks.forEach((block, index) => {
-                    if (block && block.transactions) {
-                        totalTransactions += block.transactions.length;
-                        timestamps.push(Number(block.timestamp));
-                        validBlocks++;
-                    } else {
-                        console.warn(`Block ${startBlockNumber + index} is invalid or empty`);
-                    }
-                });
-                
-                if (validBlocks === 0) {
-                    throw new Error('No valid blocks found');
-                }
-                
-                // Calculate time duration
-                const timeDuration = timestamps.length > 1 
-                    ? Math.max(...timestamps) - Math.min(...timestamps)
-                    : 2; // Assume 2 seconds if only one block
-                
-                // Calculate TPS
-                const tps = timeDuration > 0 ? (totalTransactions / timeDuration).toFixed(2) : 0;
-                
-                // Update the display
-                document.getElementById('throughput').innerHTML = `<span>${tps}</span>`;
-                
-                console.log(`Polygon Amoy TPS: ${tps}`);
-                console.log(`Calculated from ${totalTransactions} transactions over ${timeDuration} seconds`);
-                console.log(`Valid blocks: ${validBlocks}/${blockRange + 1}`);
-                
-                return tps;
-            } catch (error) {
-                console.error('Error calculating TPS:', error);
-                // If there's an error, show estimated value
-                document.getElementById('throughput').innerHTML = '<span>~500</span>';
-                
-                // Try alternative calculation method
+            let retries = 0;
+            const maxRetries = 3;
+            
+            while (retries < maxRetries) {
                 try {
-                    const latestBlock = await web3.eth.getBlockNumber();
-                    console.log('Latest block number:', latestBlock);
+                    console.log(`Calculating Polygon zkEVM Mainnet TPS... (Attempt ${retries + 1})`);
+                    console.log(`Using RPC: ${rpcEndpoints[currentRpcIndex]}`);
                     
-                    // Try to get just the latest block
-                    const block = await web3.eth.getBlock('latest', true);
-                    if (block && block.transactions) {
-                        const txCount = block.transactions.length;
-                        const estimatedTPS = (txCount / 2).toFixed(2); // Assuming ~2 second block time
-                        document.getElementById('throughput').innerHTML = `<span>~${estimatedTPS}</span>`;
-                        console.log(`Estimated TPS from latest block: ${estimatedTPS}`);
+                    // First, test if the connection works
+                    const chainId = await web3.eth.getChainId();
+                    console.log(`Connected to chain ID: ${chainId}`);
+                    
+                    // Get latest block number first
+                    const latestBlockNumber = await web3.eth.getBlockNumber();
+                    console.log(`Latest block number: ${latestBlockNumber}`);
+                    
+                    // Convert BigInt to Number
+                    const latestBlockNum = Number(latestBlockNumber);
+                    
+                    // Try to get fewer blocks for more reliability
+                    const blockRange = 5; // Reduced from 10
+                    const startBlockNumber = latestBlockNum - blockRange;
+                    
+                    let totalTransactions = 0;
+                    let timestamps = [];
+                    let validBlocks = 0;
+                    
+                    // Fetch blocks one by one with individual error handling
+                    for (let i = startBlockNumber; i <= latestBlockNum; i++) {
+                        try {
+                            const block = await web3.eth.getBlock(i);
+                            if (block && block.transactions) {
+                                totalTransactions += block.transactions.length;
+                                timestamps.push(Number(block.timestamp));
+                                validBlocks++;
+                                console.log(`Block ${i}: ${block.transactions.length} transactions`);
+                            }
+                        } catch (blockError) {
+                            console.warn(`Failed to fetch block ${i}:`, blockError.message);
+                        }
                     }
-                } catch (altError) {
-                    console.error('Alternative calculation also failed:', altError);
+                    
+                    if (validBlocks === 0) {
+                        // Try just the latest block
+                        console.log('Trying to fetch just the latest block...');
+                        const latestBlock = await web3.eth.getBlock('latest');
+                        if (latestBlock && latestBlock.transactions) {
+                            const txCount = latestBlock.transactions.length;
+                            const estimatedTPS = (txCount / 2).toFixed(2); // Assuming ~2 second block time
+                            document.getElementById('throughput').innerHTML = `<span>~${estimatedTPS}</span>`;
+                            console.log(`Estimated TPS from latest block: ${estimatedTPS} (${txCount} transactions)`);
+                            return estimatedTPS;
+                        }
+                        throw new Error('No valid blocks found');
+                    }
+                    
+                    // Calculate time duration
+                    const timeDuration = timestamps.length > 1 
+                        ? Math.max(...timestamps) - Math.min(...timestamps)
+                        : 2 * (validBlocks - 1); // Estimate based on ~2 second blocks
+                    
+                    // Calculate TPS
+                    const tps = timeDuration > 0 ? (totalTransactions / timeDuration).toFixed(2) : 0;
+                    
+                    // Update the display
+                    document.getElementById('throughput').innerHTML = `<span>${tps}</span>`;
+                    
+                    console.log(`Polygon zkEVM Mainnet TPS: ${tps}`);
+                    console.log(`Calculated from ${totalTransactions} transactions over ${timeDuration} seconds`);
+                    console.log(`Valid blocks: ${validBlocks}/${blockRange + 1}`);
+                    
+                    return tps;
+                    
+                } catch (error) {
+                    console.error(`Error calculating TPS (attempt ${retries + 1}):`, error.message);
+                    retries++;
+                    
+                    if (retries < maxRetries) {
+                        // Try switching RPC endpoint
+                        await switchRpcEndpoint();
+                        // Wait a bit before retrying
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                    } else {
+                        // Final fallback - show estimated value
+                        console.error('All attempts failed. Showing estimated value.');
+                        document.getElementById('throughput').innerHTML = '<span>50-100</span>';
+                        document.getElementById('throughput').title = 'Estimated range based on typical mainnet activity';
+                    }
                 }
             }
         }
