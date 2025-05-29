@@ -1,24 +1,24 @@
 {
   "network": "polygonZkEVMAmoy",
-  "timestamp": "2025-05-28T06:58:00.988Z",
-  "deploymentTime": 10416,
+  "timestamp": "2025-05-29T10:26:54.154Z",
+  "deploymentTime": 12012,
   "deploymentGas": "3029960",
-  "mintTime": 5346,
+  "mintTime": 5392,
   "mintGas": "80151",
-  "fileMintTime": 6159,
+  "fileMintTime": 6248,
   "fileMintGas": "92444",
-  "batchMintTime": 7859,
+  "batchMintTime": 5708,
   "batchMintGas": "113825",
-  "batchFileMintTime": 6273,
-  "batchFileMintGas": "148691",
-  "avgBlockTime": 2.2,
-  "contractAddress": "0xb2679147f6F5809Fa581E7F9023B8CD7baBB0E0C",
+  "batchFileMintTime": 6216,
+  "batchFileMintGas": "148703",
+  "avgBlockTime": 2,
+  "contractAddress": "0x05A6431ffDC7815f6608dBB886deB21c15e77B4B",
   "transactionHashes": {
-    "deployment": "0x262eae2a0c6b4b03eb9e4a1df894cad0c683b48ba2da0a3661d488410b5d1738",
-    "mint": "0xd8f729d065fd9974098648c93ea056ab4ab6a0a29eb2e1de448133253cedf12e",
-    "fileMint": "0x6040a6d56085ed30621d9941cd0ef7c2500b87ce46fd2155daa7a0105a0fd437",
-    "batchMint": "0x9ba61f9606dcb50b83810d2972cc96fa019cdd8718dd1b71eab74e75878758d4",
-    "batchFileMint": "0xd9df4f0aa3c80138312540c6a062183c78f4ea2a391bd0809e4fe7bca49959c9"
+    "deployment": "0x3e5a441eb86f49a82ada1592402d81b47e725408920d8b322327c9153ecffabb",
+    "mint": "0xc2e0d00c58bb5fa434f9f781b94e6efc0405eac179adfc0ad1ff4fe81597a50e",
+    "fileMint": "0xf64bbf6d7630a38636baaf8d0bc1a7fd30b40027a20c3c454342152090090638",
+    "batchMint": "0x4e5021d24476a2ab836667ef0016b156a22eb9b4ff05057b19b4b9e7c3d2a17b",
+    "batchFileMint": "0x9597da55af52fb6ea466a26afdc3c57f3faedf4a901ef3df2b51da616dc2b314"
   },
   "totalSupply": "7"
 }

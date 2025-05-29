@@ -1,24 +1,24 @@
 {
   "network": "sepolia",
-  "timestamp": "2025-05-28T06:58:57.131Z",
-  "deploymentTime": 27109,
+  "timestamp": "2025-05-29T10:27:54.292Z",
+  "deploymentTime": 8642,
   "deploymentGas": "3029960",
-  "mintTime": 11911,
+  "mintTime": 23343,
   "mintGas": "80151",
-  "fileMintTime": 48178,
-  "fileMintGas": "92444",
-  "batchMintTime": 131557,
+  "fileMintTime": 11987,
+  "fileMintGas": "92432",
+  "batchMintTime": 11346,
   "batchMintGas": "113825",
-  "batchFileMintTime": 24668,
-  "batchFileMintGas": "148703",
+  "batchFileMintTime": 12364,
+  "batchFileMintGas": "148691",
   "avgBlockTime": 12,
-  "contractAddress": "0x03B7F4411098cdB595511A0B3646F65Bde9c2888",
+  "contractAddress": "0xf87Cc8bCfD097A35255398318102fE3c4caF88B2",
   "transactionHashes": {
-    "deployment": "0xa03c843416e22eb4e5179286691e3c1d08cdc31ebac72ab4fc91b6c0fa349b2d",
-    "mint": "0xae2e42e9c8286685ad2c247cb2a7e297209baa167e59d1ffb0b06bef95559711",
-    "fileMint": "0x788bf09501042f31a2f5c76bd6c9acee760d75e4e555ea4512fe6d7edb9313e8",
-    "batchMint": "0x2c9e869b0059ae864fc5749355df009db46005d3495f61fa9b4deeb09883c98a",
-    "batchFileMint": "0xe65172196ca7e081033b30ee8641b8990d770638322d8753bc67d9fb19b00926"
+    "deployment": "0xde9a3406980ef0479f979fe72f84a4c15571b288e7c741c45ce78f2afc7ff4f5",
+    "mint": "0x569c952f42730c7f7e3fc841006a7dab07d45556d0053fc85cd3608a318e2c60",
+    "fileMint": "0x52c16c26c17b46c9ffe852d95d35ede3f4968ba658f88311e4939a59ef8df7ed",
+    "batchMint": "0xddc669950612783eac992c863655ab87e2855fb6e5495f14d448378136336d6e",
+    "batchFileMint": "0x87917c9117f8a81856445fd8fe7b903d5af56a776c6011c27c9d5dd7cad3f581"
   },
   "totalSupply": "7"
 }

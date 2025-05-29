@@ -4,25 +4,25 @@
 - **zkEVM**: Polygon zkEVM Amoy Testnet
 - **Ethereum**: Sepolia Testnet
 - **Contract**: Simple NFT with file minting functionality
-- **Test Date**: 2025-05-28T07:04:25.696Z
+- **Test Date**: 2025-05-29T10:29:16.459Z
 
 ## Contract Addresses
-- **zkEVM Contract**: 0xb2679147f6F5809Fa581E7F9023B8CD7baBB0E0C
-- **Sepolia Contract**: 0x03B7F4411098cdB595511A0B3646F65Bde9c2888
+- **zkEVM Contract**: 0x05A6431ffDC7815f6608dBB886deB21c15e77B4B
+- **Sepolia Contract**: 0xf87Cc8bCfD097A35255398318102fE3c4caF88B2
 
 ## Performance Metrics
 
 | Metric | Polygon zkEVM Amoy | Ethereum Sepolia | Improvement |
 |--------|-------------------|------------------|-------------|
-| Deployment Time (ms) | 10416 | 27109 | 61.58% |
+| Deployment Time (ms) | 12012 | 8642 | -39.00% |
 | Deployment Gas | 3029960 | 3029960 | 0.00% |
-| Single Mint Time (ms) | 5346 | 11911 | 55.12% |
+| Single Mint Time (ms) | 5392 | 23343 | 76.90% |
 | Single Mint Gas | 80151 | 80151 | 0.00% |
-| File Mint Time (ms) | 6159 | 48178 | 87.22% |
-| File Mint Gas | 92444 | 92444 | 0.00% |
-| Batch Mint Time (3 NFTs) (ms) | 7859 | 131557 | 94.03% |
-| Batch File Mint Time (2 NFTs) (ms) | 6273 | 24668 | 74.57% |
-| Average Block Time (s) | 2.2 | 12 | N/A |
+| File Mint Time (ms) | 6248 | 11987 | 47.88% |
+| File Mint Gas | 92444 | 92432 | -0.01% |
+| Batch Mint Time (3 NFTs) (ms) | 5708 | 11346 | 49.69% |
+| Batch File Mint Time (2 NFTs) (ms) | 6216 | 12364 | 49.73% |
+| Average Block Time (s) | 2 | 12 | N/A |
 
 ## Key Findings
 
